@@ -1,9 +1,7 @@
 <?php
+
 /* stocker l'id de l'utilisateur dans le $_SESSION
  * 
- * 
- * 
- *
  */
 DEFINE('DB_USER', 'root');
 DEFINE('DB_PASSWORD', '');
@@ -25,11 +23,37 @@ function maConnexion() {
     return $dbc;
 }
 
+function recupererUtilisateur($idUtilisateur) {
+    try {
+        $pssUtilisateur = maConnexion()->prepare("SELECT * FROM utilisateur WHERE idUtilisateur = :id");
+        $pssUtilisateur->bindParam(':id', $idUtilisateur, PDO::PARAM_INT);
+        $pssUtilisateur->execute();
+        return $pssUtilisateur->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die('Error during the execution of the SQL statement');
+    }
+}
+
+function getAnimauxFromUser($idUtilisateur) {
+    try {
+        $pssAnimal = maConnexion()->prepare("SELECT * FROM animal WHERE idUtilisateur = :id");
+        $pssAnimal->bindParam(':id', $idUtilisateur, PDO::PARAM_INT);
+        $pssAnimal->execute();
+        return $pssAnimal->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die('Error during the execution of the SQL statement');
+    }
+}
+
+function recupererAnimal($idAnimal) {
+    
+}
+
 function insererAdresse($pays, $rue, $numero, $npa) {
     try {
         $psiAdresse = maConnexion()->prepare("INSERT INTO adresse(numero,nomRue,CodePostal,pays) "
                 . "VALUES (:numero,:rue,:npa,:pays);");
-        $psiAdresse->bindParam(':nuemro', $numero, PDO::PARAM_STR);
+        $psiAdresse->bindParam(':numero', $numero, PDO::PARAM_STR);
         $psiAdresse->bindParam(':rue', $rue, PDO::PARAM_STR);
         $psiAdresse->bindParam(':npa', $npa, PDO::PARAM_STR);
         $psiAdresse->bindParam(':pays', $pays, PDO::PARAM_STR);
@@ -58,14 +82,15 @@ function inscriptionUtilisateur($nom, $prenom, $mdp, $naissance, $description, $
     }
 }
 
-function inscriptionAnimal($espece, $nom, $naissance, $remarques) {
+function inscriptionAnimal($espece, $nom, $naissance, $remarques, $idUtilisateur) {
     try {
-        $psiAnimal = maConnexion()->prepare("INSERT INTO animal(espece,nomAnimal,dateNaissanceAnimal,remarques) "
-                . "VALUES (:espece,:nom,:naisssance,:remarques);");
+        $psiAnimal = maConnexion()->prepare("INSERT INTO animal(espece,nomAnimal,dateNaissanceAnimal,remarques,idUtilisateur) "
+                . "VALUES (:espece,:nom,:naissance,:remarques,:id);");
         $psiAnimal->bindParam(':nom', $nom, PDO::PARAM_STR);
         $psiAnimal->bindParam(':naissance', $naissance, PDO::PARAM_STR);
         $psiAnimal->bindParam(':espece', $espece, PDO::PARAM_STR);
         $psiAnimal->bindParam(':remarques', $remarques, PDO::PARAM_STR);
+        $psiAnimal->bindParam(':id', $idUtilisateur, PDO::PARAM_STR);
         $psiAnimal->execute();
         return maConnexion()->lastInsertId();
     } catch (PDOException $e) {
@@ -90,27 +115,30 @@ function connexion($mdp, $nom) {
     return $pssConnexion->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function modifierAdresse($rue, $numero, $npa, $pays,$idUtlisateur) {
-    $psuAdresse = maConnexion()->prepare("UPDATE adresse SET "
-            . "numero=:numero, nomRue=:rue, CodePostal=:npa, Pays=:pays "
-            . "WHERE idAdresse = (SELECT idAdresse FROM utilisateur WHERE idUtilisateur = :id)");
+function modifierAdresse($rue, $numero, $npa, $pays, $idUtlisateur) {
+    $psuAdresse = maConnexion()->prepare("UPDATE adresse "
+            . "SET numero=:numero, nomRue=:rue, CodePostal=:npa, Pays=:pays "
+            . "WHERE idAdresse = "
+            . "(SELECT idAdresse "
+            . "FROM utilisateur "
+            . "WHERE idUtilisateur = :id)");
     $psuAdresse->bindParam(":numero", $numero, PDO::PARAM_STR);
     $psuAdresse->bindParam(":rue", $rue, PDO::PARAM_STR);
     $psuAdresse->bindParam(":npa", $npa, PDO::PARAM_STR);
     $psuAdresse->bindParam(":pays", $pays, PDO::PARAM_STR);
-    $psuAdresse->bindParam(':id', $idUtlisateur,PDO::PARAM_STR);
+    $psuAdresse->bindParam(':id', $idUtlisateur, PDO::PARAM_STR);
     $psuAdresse->execute();
 }
 
-function modifierUtilisateur($nom,$prenom,$mdp,$naissance,$description,$idUtlisateur) {
-    $psuUtilisateur = maConnexion()->prepare("UPDATE utilisateur SET"
-            . " nom=:nom, prenom=:prenom, mdp=:mdp, dateNaissance=:naissance, description=:description "
+function modifierUtilisateur($nom, $prenom, $mdp, $naissance, $description, $idUtlisateur) {
+    $psuUtilisateur = maConnexion()->prepare("UPDATE utilisateur "
+            . "SET nom=:nom, prenom=:prenom, mdp=:mdp, dateNaissance=:naissance, description=:description "
             . "WHERE idUser = :id");
     $psuUtilisateur->bindParam(':nom', $nom, PDO::PARAM_STR);
     $psuUtilisateur->bindParam(':prenom', $prenom, PDO::PARAM_STR);
     $psuUtilisateur->bindParam(':mdp', $mdp, PDO::PARAM_STR);
     $psuUtilisateur->bindParam(':naissance', $naissance, PDO::PARAM_STR);
     $psuUtilisateur->bindParam(':description', $description, PDO::PARAM_STR);
-    $psuUtilisateur->bindParam(':id', $idUtlisateur,PDO::PARAM_STR);
+    $psuUtilisateur->bindParam(':id', $idUtlisateur, PDO::PARAM_STR);
     $psuUtilisateur->execute();
 }
