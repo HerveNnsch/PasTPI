@@ -3,7 +3,8 @@
 require './dao.php';
 if (isset($_REQUEST["btnsave"])) {
     if ($_REQUEST["pwd"] == $_REQUEST["pwd2"]) {
-        inscriptionUtilisateur($_REQUEST["nom"], $_REQUEST["prenom"], $_REQUEST["mdp"], $_REQUEST["date"], $_REQUEST["desc"], $_REQUEST["pays"], $_REQUEST["rue"], $_REQUEST["numero"], $_REQUEST["codepostal"]);
+        inscriptionUtilisateur($_REQUEST["nom"], $_REQUEST["prenom"], sha1($_REQUEST["pwd2"]), $_REQUEST["date"], $_REQUEST["desc"], $_REQUEST["pays"], $_REQUEST["rue"], $_REQUEST["numero"], $_REQUEST["codepostal"]);
+        header('Location: index.php');
     } else {
         echo"Les deux mots de passe ne correspondent pas";
     }
@@ -16,6 +17,7 @@ if (isset($_REQUEST["btnsave"])) {
     </head>
     <body>
         <nav>
+            <a href="index.php">Accueil</a>
             <a href='inscription.php'>Inscription</a>
             <a href='connexion.php'>Connexion</a>
             <a href='animal.php'>Inscrire animal</a>

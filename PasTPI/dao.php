@@ -1,5 +1,4 @@
 <?php
-
 /* stocker l'id de l'utilisateur dans le $_SESSION
  * 
  */
@@ -30,7 +29,18 @@ function recupererUtilisateur($idUtilisateur) {
         $pssUtilisateur->execute();
         return $pssUtilisateur->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die('Error during the execution of the SQL statement');
+        die('Erreur pendant la récupération de l\'utilisateur');
+    }
+}
+
+function getAdresse($idAdresse){
+    try {
+        $pssUtilisateur = maConnexion()->prepare("SELECT * FROM adresse WHERE idAdresse = :id");
+        $pssUtilisateur->bindParam(':id', $idAdresse, PDO::PARAM_INT);
+        $pssUtilisateur->execute();
+        return $pssUtilisateur->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        die('Erreur pendant la récupération de l\'adresse depuis l\'utilisateur');
     }
 }
 
@@ -41,7 +51,7 @@ function getAnimauxFromUser($idUtilisateur) {
         $pssAnimal->execute();
         return $pssAnimal->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        die('Error during the execution of the SQL statement');
+        die('Erreur pendant la récupération de l\'animal depuis l\'utilisateur');
     }
 }
 
@@ -60,7 +70,7 @@ function insererAdresse($pays, $rue, $numero, $npa) {
         $psiAdresse->execute();
         return maConnexion()->lastInsertId();
     } catch (PDOException $e) {
-        die('Error during the execution of the SQL statement');
+        die('Erreur pendant la récupération de l\'animal');
     }
 }
 
@@ -78,7 +88,7 @@ function inscriptionUtilisateur($nom, $prenom, $mdp, $naissance, $description, $
         $psiUtilisateur->execute();
         return maConnexion()->lastInsertId();
     } catch (PDOException $e) {
-        die('Error during the execution of the SQL statement');
+        die('Erreur pendant l\'inscription de l\'utilisateur');
     }
 }
 
@@ -94,7 +104,7 @@ function inscriptionAnimal($espece, $nom, $naissance, $remarques, $idUtilisateur
         $psiAnimal->execute();
         return maConnexion()->lastInsertId();
     } catch (PDOException $e) {
-        die('Error during the execution of the SQL statement');
+        die('Erreur pendant l\'inscription de l\'animal');
     }
 }
 
@@ -141,4 +151,14 @@ function modifierUtilisateur($nom, $prenom, $mdp, $naissance, $description, $idU
     $psuUtilisateur->bindParam(':description', $description, PDO::PARAM_STR);
     $psuUtilisateur->bindParam(':id', $idUtlisateur, PDO::PARAM_STR);
     $psuUtilisateur->execute();
+}
+
+function insererDisponibilités(){
+    try {
+        $psiDisponibilites = maConnexion()->prepare("");
+        $psiAnimal->execute();
+        return maConnexion()->lastInsertId();
+    } catch (PDOException $e) {
+        die('Erreur pendant l\'inscription des disponibilités');
+    }
 }
